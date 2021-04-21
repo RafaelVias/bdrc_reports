@@ -1,5 +1,4 @@
 
-source('/Users/Vias/Desktop/R/HI/Bayes_Sumar/Rennsli_2/functions/catalog_functions.R')
 
 
 catalog <- function(formula,data,c_values=NULL,directory,type=1){
@@ -44,13 +43,9 @@ catalog <- function(formula,data,c_values=NULL,directory,type=1){
   b <- 0
   for (i in 1:length(snames)) {
     rc_dat <- data.frame(main$sets[i])
-    set.seed(3004)
     fits$bgplm[[i]] <- bgplm(formula,rc_dat)
-    set.seed(3004)
     fits$bgplm0[[i]] <- bgplm0(formula,rc_dat)
-    set.seed(3004)
     fits$bplm[[i]] <- bplm(formula,rc_dat)
-    set.seed(3004)
     fits$bplm0[[i]] <- bplm0(formula,rc_dat)
     b <- b+1
     if(print_load==T) print(paste(100*round(b/(length(snames)+nrow(c_values)),digits = 3),"%",sep = ""))
@@ -60,13 +55,9 @@ catalog <- function(formula,data,c_values=NULL,directory,type=1){
     for (i in 1:nrow(c_values)) {
       j <- which(snames %in% c_values$name[i])
       rc_dat <- data.frame(main$sets[j])
-      set.seed(3004)
       fits_c$bgplm[[j]] <- bgplm(formula,rc_dat,c_param = c_values$c[i])
-      set.seed(3004)
       fits_c$bgplm0[[j]] <- bgplm0(formula,rc_dat,c_param = c_values$c[i])
-      set.seed(3004)
       fits_c$bplm[[j]] <- bplm(formula,rc_dat,c_param = c_values$c[i])
-      set.seed(3004)
       fits_c$bplm0[[j]] <- bplm0(formula,rc_dat,c_param = c_values$c[i])
       b <- b+1
       if(print_load==T) print(paste(100*round(b/(length(snames)+nrow(c_values)),digits = 3),"%",sep = ""))
@@ -180,34 +171,3 @@ catalog <- function(formula,data,c_values=NULL,directory,type=1){
   t_diff <- end-begin
   print(t_diff)
 }
-
-
-
-
-######################################################################################################################
-#######################
-# EXAMPLE 1 ###########
-formula <-  Q~W
-data <- rbind(mainlist$rivers[[2]],mainlist$rivers[[31]],mainlist$rivers[[26]],mainlist$rivers[[25]][1:9,])
-data <- data.frame(data)
-c_values <- data.frame(name=c('SUNDSTORP','GREDEBY','RANSTA'),c_val=c(65.7,7.15,23.4))
-directory <- "/Users/Vias/Desktop/R/HI/Bayes_Sumar/Rennsli_2"
-type <- 3
-# EXAMPLE 2 ###########
-formula <-  Q~W
-data <- data.frame(mainlist$rivers[[1]])[0,]
-for (i in 1:65) data <- rbind(data,mainlist$rivers[[i]])
-c_values <- data.frame(raf=mainlist$value_c,dan=all_rnames)
-directory <- "/Users/Vias/Desktop/R/HI/Bayes_Sumar/Rennsli_2"
-type <- 3
-# EXAMPLE 3 ###########
-formula <-  Q~W
-data <- rbind(mainlist$rivers[[2]])
-data <- data.frame(data)
-c_values <- data.frame(name=c('SUNDSTORP','GREDEBY','RANSTA'),c_val=c(65.7,7.15,23.4))
-directory <- "/Users/Vias/Desktop/R/HI/Bayes_Sumar/Rennsli_2"
-type <- 3
-#######################
-# catalog(formula = Q~W, data=d, c_values=md, directory="/Users/Vias/Desktop/R/HI/Bayes_Sumar/Rennsli_2",type=2)
-# catalog(formula = Q~W, data=d, c_values=md, directory="/Users/Vias/Desktop/R/HI/Bayes_Sumar",type=1)
-######################################################################################################################
