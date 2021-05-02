@@ -28,7 +28,7 @@ tournament.get_report <- function(t_obj,directory=NULL,type=1){
         do.call('grid.arrange',model_plot_list)
     })
     mcmc_hist_list <- lapply(t_obj$contestants,function(m){
-        plot(m,type='histogram',param=c('latent_parameters','hyperparameters'))
+        autoplot(m,type='histogram',param=c('latent_parameters','hyperparameters'),transformed = T)
     })
     MCMC_table <- lapply(t_obj$contestants,function(m){
                     data.frame(nr_iter=m$run_info$nr_iter,
