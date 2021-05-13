@@ -20,12 +20,12 @@ tournament.get_report <- function(t_obj,directory=NULL,type=1){
                 })
     lim_dat <- do.call('rbind',lim_list)
     plot_list <- lapply(t_obj$contestants,function(m){
-        pt_plot_list <- lapply(plot_types,function(pt){
+        pt_plot_list <- lapply(main_plot_types,function(pt){
             autoplot(m,type=pt) +
             scale_x_continuous(limits = c(min(lim_dat[[paste0(pt,'_x_min')]]),max(lim_dat[[paste0(pt,'_x_max')]]))) +
             scale_y_continuous(limits = c(min(lim_dat[[paste0(pt,'_y_min')]]),max(lim_dat[[paste0(pt,'_y_max')]])))
         })
-        do.call('grid.arrange',model_plot_list)
+        do.call('grid.arrange',pt_plot_list)
     })
     mcmc_hist_list <- lapply(t_obj$contestants,function(m){
         autoplot(m,type='histogram',param=c('latent_parameters','hyperparameters'),transformed = T)
