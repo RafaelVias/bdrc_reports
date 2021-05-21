@@ -5,25 +5,36 @@ tournament.get_report <- function(t_obj,directory=NULL,type=1){
         post_dat <- spread_draws(m,'rating_curve','f','sigma_eps','c')
         post_dat[post_dat$h>=min(h_dat) & post_dat$h<=max(h_dat),]
     })
-    main_plot_types <- c('rating_curve','residuals','sigma_eps','f')
+    max_res <- lapply(names(posterior_list), function(x) {
+                  mod_obj <- t_obj$contestants[[x]]
+                  c_param <- if(is.null(mod_obj$run_info$c_param)) median(mod_obj$c_posterior) else mod_obj$run_info$c_param
+                  resid_dat <- merge(mod_obj$rating_curve[,c('h','median')],mod_obj$data,by.x='h',by.y=all.vars(mod_obj$formula)[2])
+                  resid_dat[,'log(h-c_hat)'] <- log(resid_dat$h-c_param)
+                  max(log(resid_dat$Q)-log(resid_dat$median))
+               })
+    max_res <- max(abs(do.call('rbind',max_res)))
     lim_list <- lapply(posterior_list,function(df){
-                    log_h_minus_c <- if(is.null(t_obj$winner$run_info$c_param)) log(df$h-quantile(df$c,0.5)) else log(df$h-t_obj$winner$run_info$c_param)
                     sigma_eps_median <- quantile(df$sigma_eps,0.5)
-                    data.frame(rating_curve_x_min=quantile(df$rating_curve,0.025),rating_curve_x_max=1.01*quantile(df$rating_curve,0.975),
-                               rating_curve_y_min=min(df$h),rating_curve_y_max=1.01*max(df$h) - 0.01*min(df$h),
-                               residuals_x_min=min(log_h_minus_c),residuals_x_max=max(log_h_minus_c),
-                               residuals_y_min=1.1*(-1.96*sigma_eps_median),residuals_y_max=1.1*(1.96*sigma_eps_median),
+                    data.frame(rating_curve_x_min=quantile(df$rating_curve,0.025),rating_curve_x_max=1.01*max(quantile(df[df$h==max(df$h),]$rating_curve,0.975),max(q_dat)),
+                               rating_curve_y_min=min(df$h),rating_curve_y_max=1.01*max(df$h)-0.01*min(df$h),
+                               residuals_y_min=1.1*min((-1.96*sigma_eps_median),-max_res),residuals_y_max=1.1*max((1.96*sigma_eps_median),max_res),
                                sigma_eps_x_min=min(df$h),sigma_eps_x_max=max(df$h),
                                sigma_eps_y_min=0,sigma_eps_y_max=max(df$sigma_eps),
                                f_x_min=min(df$h),f_x_max=max(df$h),
                                f_y_min=min(df$f,1),f_y_max=max(df$f,3.5))
-                })
+                 })
     lim_dat <- do.call('rbind',lim_list)
-    plot_list <- lapply(t_obj$contestants,function(m){
+    main_plot_types <- c('rating_curve','residuals','sigma_eps','f')
+    main_plot_list <- lapply(t_obj$contestants,function(m){
         pt_plot_list <- lapply(main_plot_types,function(pt){
-            autoplot(m,type=pt) +
-            scale_x_continuous(limits = c(min(lim_dat[[paste0(pt,'_x_min')]]),max(lim_dat[[paste0(pt,'_x_max')]]))) +
-            scale_y_continuous(limits = c(min(lim_dat[[paste0(pt,'_y_min')]]),max(lim_dat[[paste0(pt,'_y_max')]])))
+            if(pt=="residuals") {
+              autoplot(m,type=pt) + 
+                scale_y_continuous(limits = c(min(lim_dat[[paste0(pt,'_y_min')]]),max(lim_dat[[paste0(pt,'_y_max')]])))
+            }else{
+              autoplot(m,type=pt) +
+                scale_x_continuous(limits = c(min(lim_dat[[paste0(pt,'_x_min')]]),max(lim_dat[[paste0(pt,'_x_max')]]))) +
+                scale_y_continuous(limits = c(min(lim_dat[[paste0(pt,'_y_min')]]),max(lim_dat[[paste0(pt,'_y_max')]])))
+            }
         })
         do.call('grid.arrange',pt_plot_list)
     })
