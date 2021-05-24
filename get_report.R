@@ -256,7 +256,8 @@ predict_matrix <- function(x){
     bot_rows <- data.frame(h=sapply(1:m,function(x) p_dat$h[length(p_dat$h)]+0.01*x),median=rep(NA,m),decimal=rep(p_dat$decimal[length(p_dat$decimal)],m))
     p_dat <- rbind(p_dat,bot_rows)
   }
-  p_mat <- lapply(unique(p_dat$decimal),function(d) p_dat$median[p_dat$decimal==d]) %>% do.call('rbind',.)
+  p_mat <- lapply(unique(p_dat$decimal),function(d) p_dat$median[p_dat$decimal==d])
+  p_mat <- do.call('rbind',p_mat)
   rownames(p_mat) <- unique(p_dat$decimal)
   colnames(p_mat) <- seq(0,0.09,by=0.01)
   p_mat <- round(p_mat,digits=3)
