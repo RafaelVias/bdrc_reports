@@ -34,18 +34,20 @@ disjoint_chains <- function(draws){
 
 
 
-split_chains <- function(four_chains){
-  if(nrow(four_chains)%%2!=0){
-    four_chains <- four_chains[-1,]
+
+split_chains <- function(chains){
+  if(nrow(chains)%%2!=0){
+    chains <- chains[-1,]
   } 
-  psi <- lapply(1:ncol(four_chains),function(x){
-    chain <- data.frame('chain'=rep(1:2,each=nrow(four_chains)/2),'value'=four_chains[,x])
-    chain <- split(chain$value,chain$chain,drop=TRUE)
-    chain <- do.call('cbind',chain)
+  psi <- lapply(1:ncol(chains),function(x){
+    separated <- data.frame('chain'=rep(1:2,each=nrow(chains)/2),'value'=chains[,x])
+    separated <- split(separated$value,separated$chain,drop=TRUE)
+    separated <- do.call('cbind',separated)
   })
   psi <- do.call('cbind',psi)
   return(psi)
 }
+
 
 
 
@@ -127,8 +129,8 @@ n_eff_samples <- function(psi){
 
 
 
-R_hat <- function(four_chains){ 
-  psi <- split_chains(four_chains)
+R_hat <- function(chains){ 
+  psi <- split_chains(chains)
   numbers <- chain_statistics(psi)
   W <- numbers$W
   var_hat <- numbers$var_hat
@@ -395,7 +397,7 @@ get_report <- function(...,directory=NULL,report_title=NULL,type=1){
     rhat_col <- c(rhat_vector(m,param),NA)       
     table <- cbind(table,'R_hat'=rhat_col)
     table <- format(round(table,digits=3),nsmall=3)
-    table[nrow(table),4] <- ''
+    table['Deviance','R_hat'] <- ''
     table <- tableGrob(table,theme=ttheme_minimal(base_family="Times",rowhead=list(fg_params=list(parse=TRUE))))
   })
   if(type==1){ 
