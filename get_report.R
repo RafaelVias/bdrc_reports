@@ -27,8 +27,9 @@ disjoint_four_chains <- function(draws){
   if(nrow(draws)%%2!=0){
     draws <- draws[-1,]
   } 
-  draws <- split(draws$value,draws$chain,drop=TRUE)
-  do.call('cbind',draws)
+  disjoint_chains <- split(draws$value,draws$chain,drop=TRUE)
+  disjoint_chains <- do.call('cbind',disjoint_chains)
+  return(disjoint_chains)
 }
 
 
