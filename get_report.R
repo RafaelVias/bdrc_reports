@@ -23,13 +23,13 @@ smaller_legend <- function(p, pointSize = 1, textSize = 11, spaceLegend = 0.8) {
 
 
 
-disjoint_four_chains <- function(draws){
+disjoint_chains <- function(draws){
   if(nrow(draws)%%2!=0){
     draws <- draws[-1,]
   } 
-  disjoint_chains <- split(draws$value,draws$chain,drop=TRUE)
-  disjoint_chains <- do.call('cbind',disjoint_chains)
-  return(disjoint_chains)
+  disjoint <- split(draws$value,draws$chain,drop=TRUE)
+  disjoint <- do.call('cbind',disjoint)
+  return(disjoint)
 }
 
 
@@ -52,7 +52,7 @@ split_chains <- function(four_chains){
 param_draws_list <- function(m,param,split_chains=TRUE){
   draws_list <- lapply(param,function(x){
     draws <- gather_draws(m,x,transformed=T)
-    draws <- disjoint_four_chains(draws)
+    draws <- disjoint_chains(draws)
     if(split_chains==TRUE){
       split_chains(draws)
     }else{
